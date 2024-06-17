@@ -11,14 +11,15 @@ class OrdersController < ApplicationController
 
   def create
     ActiveRecord::Base.transaction do
-    @order = current_user.orders.build(order_params)
-    @order.ordered_lists.each do |ordered_list|
-      item = Item.lock.find(ordered_list.item_id)
+      @order = current_user.orders.build(order_params)
+      # 全てのアイテムをロック
+      @order.ordered_lists.each do |ordered_list|
+        item = Item.lock.find(ordered_list.item_id)
+        # 必要であれば、ここで item の数量チェックを行う
+      end
+      @order.save!
+      @order.update_total_quantity
     end
-    @order.save!
-    @order.update_total_quantity
-  end
-    # update_total_quantityメソッドは、注文された発注量を総量に反映するメソッドであり、Orderモデルに定義されています。
     redirect_to orders_path
   rescue ActiveRecord::RecordInvalid => e
     # トランザクションが失敗した場合のエラーハンドリング
@@ -26,10 +27,9 @@ class OrdersController < ApplicationController
     render :new
   end
 
-    private
+  private
 
   def order_params
     params.require(:order).permit(ordered_lists_attributes: [:item_id, :quantity])
   end
-
 end
