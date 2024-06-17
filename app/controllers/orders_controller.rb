@@ -12,7 +12,6 @@ class OrdersController < ApplicationController
   def create
     ActiveRecord::Base.transaction do
       @order = current_user.orders.build(order_params)
-      @item = Item.lock.find_by(id: line_item.item_id)
       @order.save!
       @order.update_total_quantity
     end
