@@ -12,11 +12,12 @@ class OrdersController < ApplicationController
   def create
     ActiveRecord::Base.transaction do
       @order = current_user.orders.build(order_params)
+      @item = Item.lock.find_by(id: line_item.item_id)
       @order.save!
       @order.update_total_quantity
-      # update_total_quantityメソッドは、注文された発注量を総量に反映するメソッドであり、Orderモデルに定義されています。
-      redirect_to orders_path
     end
+    # update_total_quantityメソッドは、注文された発注量を総量に反映するメソッドであり、Orderモデルに定義されています。
+    redirect_to orders_path
   end
 
   private
