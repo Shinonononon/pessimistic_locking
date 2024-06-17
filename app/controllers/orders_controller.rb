@@ -6,19 +6,18 @@ class OrdersController < ApplicationController
   def new
     @order = Order.new
     @order.ordered_lists.build
-    @items = Item.lock.all.order(:created_at)
+    @items = Item.all.order(:created_at)
   end
 
   def create
     ActiveRecord::Base.transaction do
-  @order = current_user.orders.build(order_params)
-  unless @order.save
-    raise ActiveRecord::Rollback
-end
-  @order.update_total_quantity
-  # update_total_quantityメソッドは、注文された発注量を総量に反映するメソッドであり、Orderモデルに定義されています。
-end
-    redirect_to orders_path
+      @order = current_user.orders.build(order_params)
+      item = Item.lock.find(ordered_list.item_id)
+      unless @order.save
+        raise @order.update_total_quantity
+      end
+      # update_total_quantityメソッドは、注文された発注量を総量に反映するメソッドであり、Orderモデルに定義されています。
+      redirect_to orders_path
   end
 
   private
