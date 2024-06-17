@@ -15,13 +15,12 @@ class OrdersController < ApplicationController
     @order.ordered_lists.each do |ordered_list|
       item = Item.lock.find(ordered_list.item_id)
     end
-    unless @order.save
-      raise @order.update_total_quantity
-    end
+    @order.save!
+    @order.update_total_quantity
+  end
     # update_total_quantityメソッドは、注文された発注量を総量に反映するメソッドであり、Orderモデルに定義されています。
     redirect_to orders_path
   end
-end
 
     private
 
