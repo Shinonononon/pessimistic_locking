@@ -20,6 +20,10 @@ class OrdersController < ApplicationController
   end
     # update_total_quantityメソッドは、注文された発注量を総量に反映するメソッドであり、Orderモデルに定義されています。
     redirect_to orders_path
+  rescue ActiveRecord::RecordInvalid => e
+    # トランザクションが失敗した場合のエラーハンドリング
+    flash[:error] = "Order creation failed: #{e.message}"
+    render :new
   end
 
     private
